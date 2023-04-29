@@ -1,2 +1,1 @@
-# devops-netology
-new line
+При заливке в репозиторий каталога /terraform будут пропущены файлы указанные в .gitignore 
