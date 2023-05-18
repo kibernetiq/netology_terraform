@@ -1,33 +1,38 @@
 # Задача 1
-- Скорость и уменьшение затрат  
-Масштабируемость  
-Безопасность  
-Восстановление в аварийных ситуациях  
-
-- Идемпотентность
+- docker pull kibernetique/my-nginx:0.1  
 
 # Задача 2
-- Не нужно ставить агентов на управляемые хосты, доступ по ssh
-- На мой взгляд, следует использовать то, что больше подходит к конкретному случаю или комбинировать.
+- высоконагруженное монолитное Java веб-приложение;  
+Ответ: Монолит не подразумевает использование контейнеров, нужно использовать виртуальные машины. 
+- Nodejs веб-приложение;  
+Ответ: Контейнеры, быстро деплоить и просто впишется в микросервисную архитектуру.  
+- мобильное приложение c версиями для Android и iOS;  
+Ответ: Виртуальные машины, проекты имеют разную архитектуру и их необходимо держать их изолированно.  
+- шина данных на базе Apache Kafka;  
+Ответ: Виртуальные машины, шина обычно разворачивается на кластерной архитектуре и требовательна к ресурсам.   
+- Elasticsearch-кластер для реализации логирования продуктивного веб-приложения — три ноды elasticsearch, два logstash и две ноды kibana;  
+Ответ: Виртуальные машины, проще маштабирование и управление кластером.  
+- мониторинг-стек на базе Prometheus и Grafana;  
+Ответ: Виртуальные машины или контейнеры, в зависимости от архитектуры на проекте.  
+- MongoDB как основное хранилище данных для Java-приложения;  
+Ответ: Для локальной разработки быстрее будет использовать контейнер, для пром эксплуатации лучше выбрать виртуальные машины.
+- Gitlab-сервер для реализации CI/CD-процессов и приватный (закрытый) Docker Registry.
+Ответ: Виртуальные машины или контейнеры, в зависимости от архитектуры на проекте.  
 
 # Задача 3
-- god@netology:~$ virtualbox --help | head -n 1 | awk '{print $NF}'  
-v6.1.44 
-- god@netology:~$ vagrant --version  
-Vagrant 2.3.4   
-- god@netology:~$ terraform --version  
-Terraform v1.4.6  
-on linux_amd64  
-- god@netology:~$ ansible --version  
-ansible [core 2.14.5]  
-  config file = /etc/ansible/ansible.cfg  
-  configured module search path = ['/home/god/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']  
-  ansible python module location = /usr/lib/python3/dist-packages/ansible  
-  ansible collection location = /home/god/.ansible/collections:/usr/share/ansible/collections  
-  executable location = /usr/bin/ansible  
-  python version = 3.10.6 (main, Mar 10 2023, 10:55:28) [GCC 11.3.0] (/usr/bin/python3)  
-  jinja version = 3.0.3  
-  libyaml = True  
+- docker run -d--mount src=/Users/yura/devops-netology/Docker/data,target=/data,type=bind centos:latest  
+- docker run -d --mount src=/Users/yura/devops-netology/Docker/data,target=/data,type=bind debian:latest  
+- docker ps  
+CONTAINER ID   IMAGE           COMMAND       CREATED         STATUS         PORTS     NAMES  
+36569e16988c   debian:latest   "bash"        8 minutes ago   Up 8 minutes             modest_hermann  
+a72b1ba9a712   centos:latest   "/bin/bash"   9 minutes ago   Up 9 minutes             strange_robinson  
+- docker exec -it a72b1ba9a712 /bin/bash  
+root@a72b1ba9a712:/# touch /data/file_1.txt  
+- docker exec -it 36569e16988c /bin/bash  
+root@36569e16988c:/# ls -l /data/  
+total 0  
+-rw-r--r-- 1 root root 0 May 17 20:10 file_1.txt  
+-rw-r--r-- 1 root root 0 May 17 19:59 file_2.txt  
 
 # Задача 4
-- Выполнено
+- docker pull kibernetique/ansible:2.9.24
