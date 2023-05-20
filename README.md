@@ -1,38 +1,61 @@
 # Задача 1
-- docker pull kibernetique/my-nginx:0.1  
+<p align="center">
+  <img width="1200" height="600" src="./Screenshots/1.png">
+</p>
 
 # Задача 2
-- высоконагруженное монолитное Java веб-приложение;  
-Ответ: Монолит не подразумевает использование контейнеров, нужно использовать виртуальные машины. 
-- Nodejs веб-приложение;  
-Ответ: Контейнеры, быстро деплоить и просто впишется в микросервисную архитектуру.  
-- мобильное приложение c версиями для Android и iOS;  
-Ответ: Виртуальные машины, проекты имеют разную архитектуру и их необходимо держать их изолированно.  
-- шина данных на базе Apache Kafka;  
-Ответ: Виртуальные машины, шина обычно разворачивается на кластерной архитектуре и требовательна к ресурсам.   
-- Elasticsearch-кластер для реализации логирования продуктивного веб-приложения — три ноды elasticsearch, два logstash и две ноды kibana;  
-Ответ: Виртуальные машины, проще маштабирование и управление кластером.  
-- мониторинг-стек на базе Prometheus и Grafana;  
-Ответ: Виртуальные машины или контейнеры, в зависимости от архитектуры на проекте.  
-- MongoDB как основное хранилище данных для Java-приложения;  
-Ответ: Для локальной разработки быстрее будет использовать контейнер, для пром эксплуатации лучше выбрать виртуальные машины.
-- Gitlab-сервер для реализации CI/CD-процессов и приватный (закрытый) Docker Registry.
-Ответ: Виртуальные машины или контейнеры, в зависимости от архитектуры на проекте.  
+<p align="center">
+  <img width="1200" height="600" src="./Screenshots/2.png">
+</p>
+
+```yandex_compute_instance.node01: Destroying... [id=fhm2d3isf2rus36oveeb]
+yandex_compute_instance.node02: Creating...
+yandex_compute_instance.node02: Still creating... [10s elapsed]
+yandex_compute_instance.node01: Still destroying... [id=fhm2d3isf2rus36oveeb, 10s elapsed]
+yandex_compute_instance.node01: Destruction complete after 19s
+yandex_compute_instance.node01: Creating...
+yandex_compute_instance.node02: Still creating... [20s elapsed]
+yandex_compute_instance.node01: Still creating... [10s elapsed]
+yandex_compute_instance.node02: Still creating... [30s elapsed]
+yandex_compute_instance.node01: Still creating... [20s elapsed]
+yandex_compute_instance.node02: Still creating... [40s elapsed]
+yandex_compute_instance.node02: Creation complete after 46s [id=fhmdjqvlpbudi05vbmda]
+yandex_compute_instance.node01: Still creating... [30s elapsed]
+yandex_compute_instance.node01: Still creating... [40s elapsed]
+yandex_compute_instance.node01: Creation complete after 47s [id=fhmongdu8ga7qbbgnf9e]
+
+Apply complete! Resources: 2 added, 0 changed, 1 destroyed.
+
+Outputs:
+
+external_ip_address_node01_yandex_cloud = "84.252.128.110"
+external_ip_address_node02_yandex_cloud = "158.160.106.247"
+internal_ip_address_node01_yandex_cloud = "192.168.101.8"
+internal_ip_address_node02_yandex_cloud = "192.168.101.28"
+```
 
 # Задача 3
-- docker run -d--mount src=/Users/yura/devops-netology/Docker/data,target=/data,type=bind centos:latest  
-- docker run -d --mount src=/Users/yura/devops-netology/Docker/data,target=/data,type=bind debian:latest  
-- docker ps  
-CONTAINER ID   IMAGE           COMMAND       CREATED         STATUS         PORTS     NAMES  
-36569e16988c   debian:latest   "bash"        8 minutes ago   Up 8 minutes             modest_hermann  
-a72b1ba9a712   centos:latest   "/bin/bash"   9 minutes ago   Up 9 minutes             strange_robinson  
-- docker exec -it a72b1ba9a712 /bin/bash  
-root@a72b1ba9a712:/# touch /data/file_1.txt  
-- docker exec -it 36569e16988c /bin/bash  
-root@36569e16988c:/# ls -l /data/  
-total 0  
--rw-r--r-- 1 root root 0 May 17 20:10 file_1.txt  
--rw-r--r-- 1 root root 0 May 17 19:59 file_2.txt  
+```[centos@node01 ~]$ sudo docker ps
+CONTAINER ID   IMAGE                              COMMAND                  CREATED       STATUS                 PORTS                                                                              NAMES
+86526a9c81ca   grafana/grafana:7.4.2              "/run.sh"                7 hours ago   Up 7 hours             3000/tcp                                                                           grafana
+69ca3566401f   prom/node-exporter:v0.18.1         "/bin/node_exporter …"   7 hours ago   Up 7 hours             9100/tcp                                                                           nodeexporter
+1f1f213822c3   gcr.io/cadvisor/cadvisor:v0.47.0   "/usr/bin/cadvisor -…"   7 hours ago   Up 7 hours (healthy)   8080/tcp                                                                           cadvisor
+2fa8ce5ba249   prom/prometheus:v2.17.1            "/bin/prometheus --c…"   7 hours ago   Up 24 minutes          9090/tcp                                                                           prometheus
+3f349a792a15   prom/pushgateway:v1.2.0            "/bin/pushgateway"       7 hours ago   Up 7 hours             9091/tcp                                                                           pushgateway
+75c30674e404   stefanprodan/caddy                 "/sbin/tini -- caddy…"   7 hours ago   Up 7 hours             0.0.0.0:3000->3000/tcp, 0.0.0.0:9090-9091->9090-9091/tcp, 0.0.0.0:9093->9093/tcp   caddy
+2aaf3ecb96ef   prom/alertmanager:v0.20.0          "/bin/alertmanager -…"   7 hours ago   Up 7 hours             9093/tcp                                                                           alertmanager
+```  
 
 # Задача 4
-- docker pull kibernetique/ansible:2.9.24
+<p align="center">
+  <img width="1200" height="600" src="./Screenshots/4.png">
+</p>
+
+# Задача 5
+<p align="center">
+  <img width="1200" height="600" src="./Screenshots/5_1.png">
+</p>
+
+<p align="center">
+  <img width="1200" height="600" src="./Screenshots/5.png">
+</p>
