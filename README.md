@@ -1,29 +1,53 @@
-# Задача 1
-- global это означает, что данный сервис будет запущен ровно в одном экземпляре на всех возможных нодах. А replicated означает, что n-ое кол-во контейнеров для данного сервиса будет запущено на всех доступных нодах.  
-- Лидер нода выбирается из управляющих нод путем Raft согласованного алгоритма.  
-- Overlay-сеть создает подсеть, которую могут использовать контейнеры в разных хостах swarm-кластера. Контейнеры на разных физических хостах могут обмениваться данными по overlay-сети (если все они прикреплены к одной сети).
+# Задание 1
+2. personal.auto.tfvars
+3. "result": "7nELnJ823R66lP48"
+4. Первая ошибка сообщает что все блоки ресурсов должны иметь 2 метки, тип и имя.  
+Вторая ошибка сообщает что имя должно начинаться с буквы или символа подчеркивания и может содержать только буквы, цифры, символы подчеркивания и тире. Имя было указанно не верно.  
+Третья ошибка означала что таких параметров нет random_string_fake.resuld
+5. 
+```
+yura@Skynet src % docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS                  NAMES
+61862cc8334d   c42efe0b5438   "/docker-entrypoint.…"   6 seconds ago   Up 5 seconds   0.0.0.0:8000->80/tcp   example_7nELnJ823R66lP48
+```
+6. 
+```
+yura@Skynet src % docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS                  NAMES
+0d7763a9b520   c42efe0b5438   "/docker-entrypoint.…"   4 seconds ago   Up 4 seconds   0.0.0.0:8000->80/tcp   example_7nELnJ823R66lP48
+```
+Опасность авто-подтверждения заключается в том что если кто-то поменял конфигурацию, эти правки сразу применятся после отображения планирования что может добавить проблем  
 
-# Задача 2
+7. 
 ```
-god@manager:~$ sudo docker node ls
-ID                            HOSTNAME   STATUS    AVAILABILITY   MANAGER STATUS   ENGINE VERSION
-7attw4yl9rneo4dnys6m66d2g *   manager    Ready     Active         Leader           20.10.24
-nbhr04ml969fuiw6af58emwcl     node1      Ready     Active                          20.10.24
-45hzkf89ggbcfnz5a63emqucq     node2      Ready     Active                          20.10.24
+{
+  "version": 4,
+  "terraform_version": "1.4.6",
+  "serial": 15,
+  "lineage": "0131c397-181f-fe36-8b2e-1e30797e3d2e",
+  "outputs": {},
+  "resources": [],
+  "check_results": null
+}
 ```
-# Задача 3
+8. Потому что установлен параметр keep_locally = true  
+https://registry.terraform.io/providers/kreuzwerker/docker/latest/docs/resources/image#keep_locally
+
+# Задание 2
+Не могу выполнить, личный компьютер на Apple Silicon m2 и получаю ошибку:
 ```
-[centos@node01 ~]$ sudo docker service ls
-ID             NAME                                MODE         REPLICAS   IMAGE                                          PORTS
-yi2k47f5153e   swarm_monitoring_alertmanager       replicated   1/1        stefanprodan/swarmprom-alertmanager:v0.14.0
-oxld9zjammdn   swarm_monitoring_caddy              replicated   1/1        stefanprodan/caddy:latest                      *:3000->3000/tcp, *:9090->9090/tcp, *:9093-9094->9093-9094/tcp
-uagt1284w2gt   swarm_monitoring_cadvisor           global       6/6        google/cadvisor:latest
-yq22smwzka5s   swarm_monitoring_dockerd-exporter   global       6/6        stefanprodan/caddy:latest
-xue27lukoy63   swarm_monitoring_grafana            replicated   1/1        stefanprodan/swarmprom-grafana:5.3.4
-i18ne5wfrl5c   swarm_monitoring_node-exporter      global       6/6        stefanprodan/swarmprom-node-exporter:v0.16.0
-je7xwleajely   swarm_monitoring_prometheus         replicated   1/1        stefanprodan/swarmprom-prometheus:v2.5.0
-mna5dpzg4l3k   swarm_monitoring_unsee              replicated   1/1        cloudflare/unsee:v0.8.0
+yura@Skynet src % terraform init -upgrade
+
+Initializing the backend...
+
+Initializing provider plugins...
+- Finding shekeriev/virtualbox versions matching "0.0.4"...
+╷
+│ Error: Incompatible provider version
+│
+│ Provider registry.terraform.io/shekeriev/virtualbox v0.0.4 does not have a package available for your current platform, darwin_arm64.
+│
+│ Provider releases are separate from Terraform CLI releases, so not all providers are available for all platforms. Other versions of this provider may have
+│ different platforms supported.
 ```
-# Задача 4
-- Команда генерирует ключ которым можно разблокировать swarm manager после его перезапуска.  
-- Служит для защиты чувствительных данных.
+Но с документацией ознакомился)
