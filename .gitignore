@@ -1,2 +1,4 @@
 **/.DS_Store/*
 *.DS_Store
+personal.auto.tfvars
+**/.personal.auto.tfvars/*
