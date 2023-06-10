@@ -1,53 +1,36 @@
 # Задание 1
-2. personal.auto.tfvars
-3. "result": "7nELnJ823R66lP48"
-4. Первая ошибка сообщает что все блоки ресурсов должны иметь 2 метки, тип и имя.  
-Вторая ошибка сообщает что имя должно начинаться с буквы или символа подчеркивания и может содержать только буквы, цифры, символы подчеркивания и тире. Имя было указанно не верно.  
-Третья ошибка означала что таких параметров нет random_string_fake.resuld
-5. 
-```
-yura@Skynet src % docker ps
-CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS                  NAMES
-61862cc8334d   c42efe0b5438   "/docker-entrypoint.…"   6 seconds ago   Up 5 seconds   0.0.0.0:8000->80/tcp   example_7nELnJ823R66lP48
-```
-6. 
-```
-yura@Skynet src % docker ps
-CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS                  NAMES
-0d7763a9b520   c42efe0b5438   "/docker-entrypoint.…"   4 seconds ago   Up 4 seconds   0.0.0.0:8000->80/tcp   example_7nELnJ823R66lP48
-```
-Опасность авто-подтверждения заключается в том что если кто-то поменял конфигурацию, эти правки сразу применятся после отображения планирования что может добавить проблем  
+1. Изучите проект.
+2. Наполните файл personal.auto.tfvars
+3. Инициализируйте проект, выполните код (он выполнится даже если доступа к preview нет).
 
-7. 
-```
-{
-  "version": 4,
-  "terraform_version": "1.4.6",
-  "serial": 15,
-  "lineage": "0131c397-181f-fe36-8b2e-1e30797e3d2e",
-  "outputs": {},
-  "resources": [],
-  "check_results": null
-}
-```
-8. Потому что установлен параметр keep_locally = true  
-https://registry.terraform.io/providers/kreuzwerker/docker/latest/docs/resources/image#keep_locally
+<p align="center">
+  <img width="1200" height="600" src="./Screenshots/1.png">
+</p>
 
 # Задание 2
-Не могу выполнить, личный компьютер на Apple Silicon m2 и получаю ошибку:
-```
-yura@Skynet src % terraform init -upgrade
+1. Создайте файл count-vm.tf. Опишите в нем создание двух одинаковых ВМ web-1 и web-2(не web-0 и web-1!), с минимальными параметрами, используя мета-аргумент count loop. Назначьте ВМ созданную в 1-м задании группу безопасности.  
+[count-vm.tf](https://github.com/kibernetiq/devops-netology/blob/terraform-03/src/count-vm.tf)
+2. Создайте файл for_each-vm.tf. Опишите в нем создание 2 ВМ с именами "main" и "replica" разных по cpu/ram/disk , используя мета-аргумент for_each loop. Используйте переменную типа list(object({ vm_name=string, cpu=number, ram=number, disk=number })). При желании внесите в переменную все возможные параметры.  
+[for_each-vm.tf](https://github.com/kibernetiq/devops-netology/blob/terraform-03/src/for_each-vm.tf)
+3. ВМ из пункта 2.2 должны создаваться после создания ВМ из пункта 2.1.  
+[for_each-vm.tf#L2](https://github.com/kibernetiq/devops-netology/blob/terraform-03/src/for_each-vm.tf#L2)
+4. Используйте функцию file в local переменной для считывания ключа ~/.ssh/id_rsa.pub и его последующего использования в блоке metadata, взятому из ДЗ №2.  
+[locals.tf#L2](https://github.com/kibernetiq/devops-netology/blob/terraform-03/src/locals.tf#L2)
+5. Инициализируйте проект, выполните код.  
+<p align="center">
+  <img width="1200" height="600" src="./Screenshots/2.png">
+</p>
 
-Initializing the backend...
+# Задание 3
+1. Создайте 3 одинаковых виртуальных диска, размером 1 Гб с помощью ресурса yandex_compute_disk и мета-аргумента count в файле disk_vm.tf .  
+[disk_vm.tf#L1-L6](https://github.com/kibernetiq/devops-netology/blob/terraform-03/src/disk_vm.tf#L1-L6)
+2. Создайте в том же файле одну ВМ c именем "storage" . Используйте блок dynamic secondary_disk{..} и мета-аргумент for_each для подключения созданных вами дополнительных дисков.  
+[disk_vm.tf#L30-L35](https://github.com/kibernetiq/devops-netology/blob/terraform-03/src/disk_vm.tf#L30-L35)
 
-Initializing provider plugins...
-- Finding shekeriev/virtualbox versions matching "0.0.4"...
-╷
-│ Error: Incompatible provider version
-│
-│ Provider registry.terraform.io/shekeriev/virtualbox v0.0.4 does not have a package available for your current platform, darwin_arm64.
-│
-│ Provider releases are separate from Terraform CLI releases, so not all providers are available for all platforms. Other versions of this provider may have
-│ different platforms supported.
-```
-Но с документацией ознакомился)
+# Задание 4
+1. В файле ansible.tf создайте inventory-файл для ansible. Используйте функцию tepmplatefile и файл-шаблон для создания ansible inventory-файла из лекции. Готовый код возьмите из демонстрации к лекции demonstration2. Передайте в него в качестве переменных группы виртуальных машин из задания 2.1, 2.2 и 3.2.(т.е. 5 ВМ)
+2. Инвентарь должен содержать 3 группы [webservers], [databases], [storage] и быть динамическим, т.е. обработать как группу из 2-х ВМ так и 999 ВМ.
+3. Выполните код. Приложите скриншот получившегося файла.
+<p align="center">
+  <img width="1200" height="600" src="./Screenshots/3.png">
+</p>
