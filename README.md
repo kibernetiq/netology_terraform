@@ -1,53 +1,105 @@
 # Задание 1
-2. personal.auto.tfvars
-3. "result": "7nELnJ823R66lP48"
-4. Первая ошибка сообщает что все блоки ресурсов должны иметь 2 метки, тип и имя.  
-Вторая ошибка сообщает что имя должно начинаться с буквы или символа подчеркивания и может содержать только буквы, цифры, символы подчеркивания и тире. Имя было указанно не верно.  
-Третья ошибка означала что таких параметров нет random_string_fake.resuld
-5. 
+1. Возьмите из демонстрации к лекции готовый код для создания ВМ с помощью remote модуля.
+2. Создайте 1 ВМ, используя данный модуль. В файле cloud-init.yml необходимо использовать переменную для ssh ключа вместо хардкода. Передайте ssh-ключ в функцию template_file в блоке vars ={} . Воспользуйтесь [примером](https://grantorchard.com/dynamic-cloudinit-content-with-terraform-file-templates/). Обратите внимание что ssh-authorized-keys принимает в себя список, а не строку!  
+[cloud-init.yml#L8](https://github.com/kibernetiq/devops-netology/blob/terraform-04/src/cloud-init.yml#L8)  
+[variables.tf#L34-L37](https://github.com/kibernetiq/devops-netology/blob/terraform-04/src/variables.tf#L34-L37)  
+[main.tf#L36-L41](https://github.com/kibernetiq/devops-netology/blob/terraform-04/src/main.tf#L36-L41)  
+3. Добавьте в файл cloud-init.yml установку nginx.  
+[cloud-init.yml#L13](https://github.com/kibernetiq/devops-netology/blob/terraform-04/src/cloud-init.yml#L13)
+4. Предоставьте скриншот подключения к консоли и вывод команды sudo nginx -t.
 ```
-yura@Skynet src % docker ps
-CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS                  NAMES
-61862cc8334d   c42efe0b5438   "/docker-entrypoint.…"   6 seconds ago   Up 5 seconds   0.0.0.0:8000->80/tcp   example_7nELnJ823R66lP48
-```
-6. 
-```
-yura@Skynet src % docker ps
-CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS                  NAMES
-0d7763a9b520   c42efe0b5438   "/docker-entrypoint.…"   4 seconds ago   Up 4 seconds   0.0.0.0:8000->80/tcp   example_7nELnJ823R66lP48
-```
-Опасность авто-подтверждения заключается в том что если кто-то поменял конфигурацию, эти правки сразу применятся после отображения планирования что может добавить проблем  
+ubuntu@develop-web-0:~$ sudo nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+ubuntu@develop-web-0:~$ systemctl status nginx
+● nginx.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/lib/systemd/system/nginx.service; enabled; vendor preset: enabled)
+     Active: active (running) since Mon 2023-06-12 13:40:12 UTC; 27min ago
+       Docs: man:nginx(8)
+   Main PID: 1553 (nginx)
+      Tasks: 3 (limit: 1100)
+     Memory: 5.7M
+     CGroup: /system.slice/nginx.service
+             ├─1553 nginx: master process /usr/sbin/nginx -g daemon on; master_process on;
+             ├─1554 nginx: worker process
+             └─1555 nginx: worker process
 
-7. 
+Warning: some journal files were not opened due to insufficient permissions.
 ```
-{
-  "version": 4,
-  "terraform_version": "1.4.6",
-  "serial": 15,
-  "lineage": "0131c397-181f-fe36-8b2e-1e30797e3d2e",
-  "outputs": {},
-  "resources": [],
-  "check_results": null
-}
-```
-8. Потому что установлен параметр keep_locally = true  
-https://registry.terraform.io/providers/kreuzwerker/docker/latest/docs/resources/image#keep_locally
-
 # Задание 2
-Не могу выполнить, личный компьютер на Apple Silicon m2 и получаю ошибку:
-```
-yura@Skynet src % terraform init -upgrade
+1. Напишите локальный модуль vpc, который будет создавать 2 ресурса: одну сеть и одну подсеть в зоне, объявленной при вызове модуля. например: ru-central1-a.  
+[main.tf#L10-L19](https://github.com/kibernetiq/devops-netology/blob/terraform-04/src/modules/vpc_dev/main.tf#L10-L19)
+2. Модуль должен возвращать значения vpc.id и subnet.id  
+[modules/vpc_dev/outputs.tf](https://github.com/kibernetiq/devops-netology/blob/terraform-04/src/modules/vpc_dev/outputs.tf)
+3. Замените ресурсы yandex_vpc_network и yandex_vpc_subnet, созданным модулем.  
+[main.tf#L43-L49](https://github.com/kibernetiq/devops-netology/blob/terraform-04/src/main.tf#L43-L49)
+4. Сгенерируйте документацию к модулю с помощью terraform-docs.  
+[modules/vpc_dev/README.md](https://github.com/kibernetiq/devops-netology/blob/terraform-04/src/modules/vpc_dev/README.md)
 
-Initializing the backend...
 
-Initializing provider plugins...
-- Finding shekeriev/virtualbox versions matching "0.0.4"...
-╷
-│ Error: Incompatible provider version
-│
-│ Provider registry.terraform.io/shekeriev/virtualbox v0.0.4 does not have a package available for your current platform, darwin_arm64.
-│
-│ Provider releases are separate from Terraform CLI releases, so not all providers are available for all platforms. Other versions of this provider may have
-│ different platforms supported.
+# Задание 3
+1. Выведите список ресурсов в стейте.
 ```
-Но с документацией ознакомился)
+yura@Skynet src % terraform state list
+data.template_file.cloudinit
+module.test-vm.data.yandex_compute_image.my_image
+module.test-vm.yandex_compute_instance.vm[0]
+module.test-vm.yandex_compute_instance.vm[1]
+module.vpc_dev.yandex_vpc_network.develop
+module.vpc_dev.yandex_vpc_subnet.develop
+```
+2. Удалите из стейта модуль vpc.
+```
+yura@Skynet src % terraform state rm 'module.vpc_dev'
+Removed module.vpc_dev.yandex_vpc_network.develop
+Removed module.vpc_dev.yandex_vpc_subnet.develop
+Successfully removed 2 resource instance(s).
+```
+3. Импортируйте его обратно. Проверьте terraform plan - изменений быть не должно. Приложите список выполненных команд и вывод.
+```
+yura@Skynet src % terraform import 'module.vpc_dev.yandex_vpc_network.develop' enp8mmedsqmpj0ffm73g
+data.template_file.cloudinit: Reading...
+data.template_file.cloudinit: Read complete after 0s [id=77ee049fdc085807806269aa7e5c93bad569f64cba03c43177fc7f6568115b4c]
+module.vpc_dev.yandex_vpc_network.develop: Importing from ID "enp8mmedsqmpj0ffm73g"...
+module.test-vm.data.yandex_compute_image.my_image: Reading...
+module.vpc_dev.yandex_vpc_network.develop: Import prepared!
+  Prepared yandex_vpc_network for import
+module.vpc_dev.yandex_vpc_network.develop: Refreshing state... [id=enp8mmedsqmpj0ffm73g]
+module.test-vm.data.yandex_compute_image.my_image: Read complete after 3s [id=fd83vhe8fsr4pe98v6oj]
+
+Import successful!
+
+The resources that were imported are shown above. These resources are now in
+your Terraform state and will henceforth be managed by Terraform.
+```
+```
+yura@Skynet src % terraform import 'module.vpc_dev.yandex_vpc_subnet.develop' e9bmbtqjoi4mkgbsb9eh
+data.template_file.cloudinit: Reading...
+data.template_file.cloudinit: Read complete after 0s [id=77ee049fdc085807806269aa7e5c93bad569f64cba03c43177fc7f6568115b4c]
+module.test-vm.data.yandex_compute_image.my_image: Reading...
+module.vpc_dev.yandex_vpc_subnet.develop: Importing from ID "e9bmbtqjoi4mkgbsb9eh"...
+module.vpc_dev.yandex_vpc_subnet.develop: Import prepared!
+  Prepared yandex_vpc_subnet for import
+module.vpc_dev.yandex_vpc_subnet.develop: Refreshing state... [id=e9bmbtqjoi4mkgbsb9eh]
+module.test-vm.data.yandex_compute_image.my_image: Read complete after 2s [id=fd83vhe8fsr4pe98v6oj]
+
+Import successful!
+
+The resources that were imported are shown above. These resources are now in
+your Terraform state and will henceforth be managed by Terraform.
+```
+```
+yura@Skynet src % terraform plan
+data.template_file.cloudinit: Reading...
+data.template_file.cloudinit: Read complete after 0s [id=77ee049fdc085807806269aa7e5c93bad569f64cba03c43177fc7f6568115b4c]
+module.test-vm.data.yandex_compute_image.my_image: Reading...
+module.vpc_dev.yandex_vpc_network.develop: Refreshing state... [id=enp8mmedsqmpj0ffm73g]
+module.test-vm.data.yandex_compute_image.my_image: Read complete after 2s [id=fd83vhe8fsr4pe98v6oj]
+module.vpc_dev.yandex_vpc_subnet.develop: Refreshing state... [id=e9bmbtqjoi4mkgbsb9eh]
+module.test-vm.yandex_compute_instance.vm[1]: Refreshing state... [id=fhmccq27v79cd72ui35p]
+module.test-vm.yandex_compute_instance.vm[0]: Refreshing state... [id=fhmhs66rmf9okntajuup]
+
+No changes. Your infrastructure matches the configuration.
+
+Terraform has compared your real infrastructure against your configuration and found no differences, so no changes are needed.
+```
