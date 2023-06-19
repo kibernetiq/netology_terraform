@@ -1,105 +1,189 @@
 # Задание 1
-1. Возьмите из демонстрации к лекции готовый код для создания ВМ с помощью remote модуля.
-2. Создайте 1 ВМ, используя данный модуль. В файле cloud-init.yml необходимо использовать переменную для ssh ключа вместо хардкода. Передайте ssh-ключ в функцию template_file в блоке vars ={} . Воспользуйтесь [примером](https://grantorchard.com/dynamic-cloudinit-content-with-terraform-file-templates/). Обратите внимание что ssh-authorized-keys принимает в себя список, а не строку!  
-[cloud-init.yml#L8](https://github.com/kibernetiq/devops-netology/blob/terraform-04/src/cloud-init.yml#L8)  
-[variables.tf#L34-L37](https://github.com/kibernetiq/devops-netology/blob/terraform-04/src/variables.tf#L34-L37)  
-[main.tf#L36-L41](https://github.com/kibernetiq/devops-netology/blob/terraform-04/src/main.tf#L36-L41)  
-3. Добавьте в файл cloud-init.yml установку nginx.  
-[cloud-init.yml#L13](https://github.com/kibernetiq/devops-netology/blob/terraform-04/src/cloud-init.yml#L13)
-4. Предоставьте скриншот подключения к консоли и вывод команды sudo nginx -t.
+1. Возьмите код:
+- из [ДЗ к лекции №04](https://github.com/netology-code/ter-homeworks/tree/main/04/src) 
+- из [демо к лекции №04](https://github.com/netology-code/ter-homeworks/tree/main/04/demonstration1).
+2. Проверьте код с помощью tflint и checkov. Вам не нужно инициализировать этот проект.
+3. Перечислите какие **типы** ошибок обнаружены в проекте (без дублей).
 ```
-ubuntu@develop-web-0:~$ sudo nginx -t
-nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
-nginx: configuration file /etc/nginx/nginx.conf test is successful
-ubuntu@develop-web-0:~$ systemctl status nginx
-● nginx.service - A high performance web server and a reverse proxy server
-     Loaded: loaded (/lib/systemd/system/nginx.service; enabled; vendor preset: enabled)
-     Active: active (running) since Mon 2023-06-12 13:40:12 UTC; 27min ago
-       Docs: man:nginx(8)
-   Main PID: 1553 (nginx)
-      Tasks: 3 (limit: 1100)
-     Memory: 5.7M
-     CGroup: /system.slice/nginx.service
-             ├─1553 nginx: master process /usr/sbin/nginx -g daemon on; master_process on;
-             ├─1554 nginx: worker process
-             └─1555 nginx: worker process
+yura@Skynet src % tflint --format=compact
+4 issue(s) found:
 
-Warning: some journal files were not opened due to insufficient permissions.
+providers.tf:3:14: Warning - Missing version constraint for provider "yandex" in `required_providers` (terraform_required_providers)
+variables.tf:43:1: Warning - variable "vm_web_name" is declared but not used (terraform_unused_declarations)
+variables.tf:36:1: Warning - variable "vms_ssh_root_key" is declared but not used (terraform_unused_declarations)
+variables.tf:50:1: Warning - variable "vm_db_name" is declared but not used (terraform_unused_declarations)
 ```
+Первый говорит о том что не указан рекомендуемый параметр, другие указывают на то, что переменные обьявлены и не используются.
+
+```
+yura@Skynet demonstration1 % tflint --format=compact
+6 issue(s) found:
+
+main.tf:33:21: Warning - Module source "git::https://github.com/udjin10/yandex_compute_instance.git?ref=main" uses a default branch as ref (main) (terraform_module_pinned_source)
+main.tf:3:14: Warning - Missing version constraint for provider "yandex" in `required_providers` (terraform_required_providers)
+main.tf:51:1: Warning - Missing version constraint for provider "template" in `required_providers` (terraform_required_providers)
+variables.tf:22:1: Warning - variable "default_cidr" is declared but not used (terraform_unused_declarations)
+variables.tf:28:1: Warning - variable "vpc_name" is declared but not used (terraform_unused_declarations)
+variables.tf:34:1: Warning - variable "public_key" is declared but not used (terraform_unused_declarations)
+```
+Здесь аналогично предыдущим предупреждениям и добавился в начале и говорит о том что ссылка на модуль использует ветку по умолчанию
+
+```
+yura@Skynet devops-netology % checkov -d ./src
+[ terraform framework ]: 100%|████████████████████|[3/3], Current File Scanned=variables.tf
+[ secrets framework ]: 100%|████████████████████|[4/4], Current File Scanned=./src/variables.tf
+
+yura@Skynet devops-netology % checkov -d ./demonstration1
+2023-06-19 21:48:50,992 [MainThread  ] [WARNI]  Failed to download module git::https://github.com/udjin10/yandex_compute_instance.git?ref=main:None (for external modules, the --download-external-modules flag is required)
+[ kubernetes framework ]: 100%|████████████████████|[1/1], Current File Scanned=cloud-init.yml
+[ terraform framework ]: 100%|████████████████████|[2/2], Current File Scanned=variables.tf
+[ secrets framework ]: 100%|████████████████████|[3/3], Current File Scanned=./demonstration1/variables.tf
+[ ansible framework ]: 100%|████████████████████|[1/1], Current File Scanned=cloud-init.yml
+```
+
 # Задание 2
-1. Напишите локальный модуль vpc, который будет создавать 2 ресурса: одну сеть и одну подсеть в зоне, объявленной при вызове модуля. например: ru-central1-a.  
-[main.tf#L10-L19](https://github.com/kibernetiq/devops-netology/blob/terraform-04/src/modules/vpc_dev/main.tf#L10-L19)
-2. Модуль должен возвращать значения vpc.id и subnet.id  
-[modules/vpc_dev/outputs.tf](https://github.com/kibernetiq/devops-netology/blob/terraform-04/src/modules/vpc_dev/outputs.tf)
-3. Замените ресурсы yandex_vpc_network и yandex_vpc_subnet, созданным модулем.  
-[main.tf#L43-L49](https://github.com/kibernetiq/devops-netology/blob/terraform-04/src/main.tf#L43-L49)
-4. Сгенерируйте документацию к модулю с помощью terraform-docs.  
-[modules/vpc_dev/README.md](https://github.com/kibernetiq/devops-netology/blob/terraform-04/src/modules/vpc_dev/README.md)
+1. Возьмите ваш GitHub репозиторий с **выполненным ДЗ №4** в ветке 'terraform-04' и сделайте из него ветку 'terraform-05'
+2. Повторите демонстрацию лекции: настройте YDB, S3 bucket, yandex service account, права доступа и мигрируйте State проекта в S3 с блокировками. Предоставьте скриншоты процесса в качестве ответа.
+3. Закомитьте в ветку 'terraform-05' все изменения.
 
+<p align="center">
+  <img width="1200" height="600" src="./Screenshots/1.png">
+</p>
 
-# Задание 3
-1. Выведите список ресурсов в стейте.
-```
-yura@Skynet src % terraform state list
-data.template_file.cloudinit
-module.test-vm.data.yandex_compute_image.my_image
-module.test-vm.yandex_compute_instance.vm[0]
-module.test-vm.yandex_compute_instance.vm[1]
-module.vpc_dev.yandex_vpc_network.develop
-module.vpc_dev.yandex_vpc_subnet.develop
-```
-2. Удалите из стейта модуль vpc.
-```
-yura@Skynet src % terraform state rm 'module.vpc_dev'
-Removed module.vpc_dev.yandex_vpc_network.develop
-Removed module.vpc_dev.yandex_vpc_subnet.develop
-Successfully removed 2 resource instance(s).
-```
-3. Импортируйте его обратно. Проверьте terraform plan - изменений быть не должно. Приложите список выполненных команд и вывод.
-```
-yura@Skynet src % terraform import 'module.vpc_dev.yandex_vpc_network.develop' enp8mmedsqmpj0ffm73g
-data.template_file.cloudinit: Reading...
-data.template_file.cloudinit: Read complete after 0s [id=77ee049fdc085807806269aa7e5c93bad569f64cba03c43177fc7f6568115b4c]
-module.vpc_dev.yandex_vpc_network.develop: Importing from ID "enp8mmedsqmpj0ffm73g"...
-module.test-vm.data.yandex_compute_image.my_image: Reading...
-module.vpc_dev.yandex_vpc_network.develop: Import prepared!
-  Prepared yandex_vpc_network for import
-module.vpc_dev.yandex_vpc_network.develop: Refreshing state... [id=enp8mmedsqmpj0ffm73g]
-module.test-vm.data.yandex_compute_image.my_image: Read complete after 3s [id=fd83vhe8fsr4pe98v6oj]
+<p align="center">
+  <img width="1200" height="600" src="./Screenshots/2.png">
+</p>
 
-Import successful!
+<p align="center">
+  <img width="1200" height="600" src="./Screenshots/3.png">
+</p>
 
-The resources that were imported are shown above. These resources are now in
-your Terraform state and will henceforth be managed by Terraform.
+<p align="center">
+  <img width="1200" height="600" src="./Screenshots/4.png">
+</p>
+
+```
+yura@Skynet src % terraform init -backend-config="access_key=*****" -backend-config="secret_key=*****"
+
+Initializing the backend...
+Initializing modules...
+
+Initializing provider plugins...
+- Reusing previous version of yandex-cloud/yandex from the dependency lock file
+- Reusing previous version of hashicorp/template from the dependency lock file
+- Using previously-installed yandex-cloud/yandex v0.93.0
+- Using previously-installed hashicorp/template v2.2.0
+
+Terraform has been successfully initialized!
+
+You may now begin working with Terraform. Try running "terraform plan" to see
+any changes that are required for your infrastructure. All Terraform commands
+should now work.
+
+If you ever set or change modules or backend configuration for Terraform,
+rerun this command to reinitialize your working directory. If you forget, other
+commands will detect it and remind you to do so if necessary.
+```
+4. Откройте в проекте terraform console, а в другом окне из этой же директории попробуйте запустить terraform apply.
+5. Пришлите ответ об ошибке доступа к State.
+```
+yura@Skynet src % terraform apply
+Acquiring state lock. This may take a few moments...
+╷
+│ Error: Error acquiring the state lock
+│
+│ Error message: ConditionalCheckFailedException: Condition not satisfied
+│ Lock Info:
+│   ID:        f5a3a13e-c8bb-6841-c248-55582acfbfc7
+│   Path:      tfstate-object/terraform.tfstate
+│   Operation: OperationTypeInvalid
+│   Who:       yura@Skynet.local
+│   Version:   1.4.6
+│   Created:   2023-06-19 20:19:08.327605 +0000 UTC
+│   Info:
+│
+│
+│ Terraform acquires a state lock to protect the state from being written
+│ by multiple users at the same time. Please resolve the issue above and try
+│ again. For most commands, you can disable locking with the "-lock=false"
+│ flag, but this is not recommended.
+```
+6. Принудительно разблокируйте State. Пришлите команду и вывод.
+```
+yura@Skynet src % terraform force-unlock f5a3a13e-c8bb-6841-c248-55582acfbfc7
+Do you really want to force-unlock?
+  Terraform will remove the lock on the remote state.
+  This will allow local Terraform commands to modify this state, even though it
+  may still be in use. Only 'yes' will be accepted to confirm.
+
+  Enter a value: yes
+
+Terraform state has been successfully unlocked!
+
+The state has been unlocked, and Terraform commands should now be able to
+obtain a new lock on the remote state.
+```
+
+# Задание 3  
+1. Сделайте в GitHub из ветки 'terraform-05' новую ветку 'terraform-hotfix'.
+2. Проверье код с помощью tflint и checkov, исправьте все предупреждения и ошибки в 'terraform-hotfix', сделайте комит.
+3. Откройте новый pull request 'terraform-hotfix' --> 'terraform-05'. 
+4. Вставьте в комментарий PR результат анализа tflint и checkov, план изменений инфраструктуры из вывода команды terraform plan.
+5. Пришлите ссылку на PR для ревью(вливать код в 'terraform-05' не нужно).  
+[Ссылка на Pull request](https://github.com/kibernetiq/devops-netology/pull/1)
+
+# Задание 4
+1. Напишите переменные с валидацией и протестируйте их, заполнив default верными и неверными значениями. Предоставьте скриншоты проверок:
+[variables.tf#L39-L56](https://github.com/kibernetiq/devops-netology/blob/terraform-05/src/variables.tf#L39-L56)
+
+- type=string, description="ip-адрес", проверка что значение переменной содержит верный IP-адрес с помощью функций cidrhost() или regex(). Тесты:  "192.168.0.1" и "1920.1680.0.1"
+```
+yura@Skynet src % terraform console
+Acquiring state lock. This may take a few moments...
+> var.ip_addr
+"192.168.0.1"
 ```
 ```
-yura@Skynet src % terraform import 'module.vpc_dev.yandex_vpc_subnet.develop' e9bmbtqjoi4mkgbsb9eh
-data.template_file.cloudinit: Reading...
-data.template_file.cloudinit: Read complete after 0s [id=77ee049fdc085807806269aa7e5c93bad569f64cba03c43177fc7f6568115b4c]
-module.test-vm.data.yandex_compute_image.my_image: Reading...
-module.vpc_dev.yandex_vpc_subnet.develop: Importing from ID "e9bmbtqjoi4mkgbsb9eh"...
-module.vpc_dev.yandex_vpc_subnet.develop: Import prepared!
-  Prepared yandex_vpc_subnet for import
-module.vpc_dev.yandex_vpc_subnet.develop: Refreshing state... [id=e9bmbtqjoi4mkgbsb9eh]
-module.test-vm.data.yandex_compute_image.my_image: Read complete after 2s [id=fd83vhe8fsr4pe98v6oj]
+yura@Skynet src % terraform console
+Acquiring state lock. This may take a few moments...
+╷
+│ Warning: Due to the problems above, some expressions may produce unexpected results.
+│
+│
+╵
 
-Import successful!
+╷
+│ Error: Invalid value for variable
+│
+│   on variables.tf line 39:
+│   39: variable "ip_addr" {
+│     ├────────────────
+│     │ var.ip_addr is "1920.1680.0.1"
+│
+│ Некорректный IP-адрес
+│
+│ This was checked by the validation rule at variables.tf:43,3-13
+```
 
-The resources that were imported are shown above. These resources are now in
-your Terraform state and will henceforth be managed by Terraform.
+- type=list(string), description="список ip-адресов", проверка что все адреса верны.  Тесты:  ["192.168.0.1", "1.1.1.1", "127.0.0.1"] и ["192.168.0.1", "1.1.1.1", "1270.0.0.1"]
+```
+> var.addr_list
+tolist([
+  "192.168.0.1",
+  "1.1.1.1",
+  "127.0.0.1",
+])
+>
 ```
 ```
-yura@Skynet src % terraform plan
-data.template_file.cloudinit: Reading...
-data.template_file.cloudinit: Read complete after 0s [id=77ee049fdc085807806269aa7e5c93bad569f64cba03c43177fc7f6568115b4c]
-module.test-vm.data.yandex_compute_image.my_image: Reading...
-module.vpc_dev.yandex_vpc_network.develop: Refreshing state... [id=enp8mmedsqmpj0ffm73g]
-module.test-vm.data.yandex_compute_image.my_image: Read complete after 2s [id=fd83vhe8fsr4pe98v6oj]
-module.vpc_dev.yandex_vpc_subnet.develop: Refreshing state... [id=e9bmbtqjoi4mkgbsb9eh]
-module.test-vm.yandex_compute_instance.vm[1]: Refreshing state... [id=fhmccq27v79cd72ui35p]
-module.test-vm.yandex_compute_instance.vm[0]: Refreshing state... [id=fhmhs66rmf9okntajuup]
-
-No changes. Your infrastructure matches the configuration.
-
-Terraform has compared your real infrastructure against your configuration and found no differences, so no changes are needed.
+Error: Invalid value for variable
+│
+│   on variables.tf line 49:
+│   49: variable "addr_list" {
+│     ├────────────────
+│     │ var.addr_list is list of string with 3 elements
+│
+│ Некорректный список IP-адресов
+│
+│ This was checked by the validation rule at variables.tf:53,3-13.
 ```
