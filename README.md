@@ -45,9 +45,6 @@ yura@Skynet devops-netology % checkov -d ./demonstration1
 1. Возьмите ваш GitHub репозиторий с **выполненным ДЗ №4** в ветке 'terraform-04' и сделайте из него ветку 'terraform-05'
 2. Повторите демонстрацию лекции: настройте YDB, S3 bucket, yandex service account, права доступа и мигрируйте State проекта в S3 с блокировками. Предоставьте скриншоты процесса в качестве ответа.
 3. Закомитьте в ветку 'terraform-05' все изменения.
-4. Откройте в проекте terraform console, а в другом окне из этой же директории попробуйте запустить terraform apply.
-5. Пришлите ответ об ошибке доступа к State.
-6. Принудительно разблокируйте State. Пришлите команду и вывод.
 
 <p align="center">
   <img width="1200" height="600" src="./Screenshots/1.png">
@@ -65,7 +62,6 @@ yura@Skynet devops-netology % checkov -d ./demonstration1
   <img width="1200" height="600" src="./Screenshots/4.png">
 </p>
 
-Перенес state в бакет
 ```
 yura@Skynet src % terraform init -backend-config="access_key=*****" -backend-config="secret_key=*****"
 
@@ -88,8 +84,8 @@ If you ever set or change modules or backend configuration for Terraform,
 rerun this command to reinitialize your working directory. If you forget, other
 commands will detect it and remind you to do so if necessary.
 ```
-Запустил terraform console в одной вкладке и terraform apply в другой
-
+4. Откройте в проекте terraform console, а в другом окне из этой же директории попробуйте запустить terraform apply.
+5. Пришлите ответ об ошибке доступа к State.
 ```
 yura@Skynet src % terraform apply
 Acquiring state lock. This may take a few moments...
@@ -112,7 +108,7 @@ Acquiring state lock. This may take a few moments...
 │ again. For most commands, you can disable locking with the "-lock=false"
 │ flag, but this is not recommended.
 ```
-Разблокировал принудительно state
+6. Принудительно разблокируйте State. Пришлите команду и вывод.
 ```
 yura@Skynet src % terraform force-unlock f5a3a13e-c8bb-6841-c248-55582acfbfc7
 Do you really want to force-unlock?
@@ -127,3 +123,10 @@ Terraform state has been successfully unlocked!
 The state has been unlocked, and Terraform commands should now be able to
 obtain a new lock on the remote state.
 ```
+
+# Задание 3  
+1. Сделайте в GitHub из ветки 'terraform-05' новую ветку 'terraform-hotfix'.
+2. Проверье код с помощью tflint и checkov, исправьте все предупреждения и ошибки в 'terraform-hotfix', сделайте комит.
+3. Откройте новый pull request 'terraform-hotfix' --> 'terraform-05'. 
+4. Вставьте в комментарий PR результат анализа tflint и checkov, план изменений инфраструктуры из вывода команды terraform plan.
+5. Пришлите ссылку на PR для ревью(вливать код в 'terraform-05' не нужно).
